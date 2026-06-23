@@ -394,6 +394,7 @@ function renderProductDetail(product) {
   /* Size selection */
   var selectedSize = null;
   var qty = 1;
+  var maxQty = 99;
   var sizeOptions = document.getElementById('size-options');
   sizeOptions.addEventListener('click', function(e) {
     var btn = e.target.closest('.size-option');
@@ -404,15 +405,24 @@ function renderProductDetail(product) {
     sizeOptions.querySelectorAll('.size-option').forEach(function(opt) { opt.classList.remove('selected'); });
     btn.classList.add('selected');
     selectedSize = btn.dataset.size;
-    document.getElementById('buy-now-detail').href = 'checkout.html?buy=' + product.id + '&size=' + selectedSize;
+    maxQty = product.stock && product.stock[selectedSize] != null ? product.stock[selectedSize] : 99;
+    if (qty > maxQty) { qty = maxQty; document.getElementById('qty-display').textContent = qty; }
+    document.getElementById('buy-now-detail').href = 'checkout.html?buy=' + product.id + '&size=' + selectedSize + '&qty=' + qty;
   });
 
+  function updateBuyNowHref() {
+    var buyBtn = document.getElementById('buy-now-detail');
+    if (selectedSize) {
+      buyBtn.href = 'checkout.html?buy=' + product.id + '&size=' + selectedSize + '&qty=' + qty;
+    }
+  }
+
   document.getElementById('qty-minus').addEventListener('click', function() {
-    if (qty > 1) { qty--; document.getElementById('qty-display').textContent = qty; }
+    if (qty > 1) { qty--; document.getElementById('qty-display').textContent = qty; updateBuyNowHref(); }
   });
 
   document.getElementById('qty-plus').addEventListener('click', function() {
-    qty++; document.getElementById('qty-display').textContent = qty;
+    if (qty < maxQty) { qty++; document.getElementById('qty-display').textContent = qty; updateBuyNowHref(); }
   });
 
   document.getElementById('add-to-cart-detail').addEventListener('click', function() {
@@ -680,6 +690,7 @@ function initCheckoutPage() {
   var cart = getCart();
   var buyId = new URLSearchParams(window.location.search).get('buy');
   var buySizeParam = new URLSearchParams(window.location.search).get('size');
+  var buyQtyParam = parseInt(new URLSearchParams(window.location.search).get('qty')) || 1;
   var itemsContainer = document.getElementById('checkout-items');
   var subtotalEl = document.getElementById('checkout-subtotal');
   var shippingEl = document.getElementById('checkout-shipping');
@@ -699,7 +710,7 @@ function initCheckoutPage() {
         }
         if (!buySize) buySize = product.sizes[0];
       }
-      addToCart(buyId, buySize, 1);
+      addToCart(buyId, buySize, buyQtyParam);
       cart = getCart();
     }
     window.history.replaceState({}, '', 'checkout.html');
