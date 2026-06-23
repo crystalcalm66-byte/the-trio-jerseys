@@ -1,11 +1,11 @@
-const { signToken, ADMIN_PASSWORD } = require('../../lib/auth');
+const { signToken, ADMIN_PASSWORD, parseJSON } = require('../../lib/auth');
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const body = (typeof req.body === 'object' ? req.body : {});
+  const body = await parseJSON(req);
   const { password } = body;
 
   if (!password || password !== ADMIN_PASSWORD) {
