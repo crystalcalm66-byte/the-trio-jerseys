@@ -1,8 +1,13 @@
 const { adminGuard } = require('../lib/auth');
-const { bucket } = require('../lib/firebase');
+const cloudinary = require('cloudinary').v2;
 const Busboy = require('busboy');
 const path = require('path');
-const crypto = require('crypto');
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 module.exports = (req, res) => {
   if (!adminGuard(req, res)) return;
@@ -32,42 +37,39 @@ module.exports = (req, res) => {
       return res.status(400).json({ error: 'Only image files (jpg, png, gif, webp) are allowed' });
     }
 
-    const filename = Date.now() + '-' + crypto.randomBytes(4).toString('hex') + ext;
-    const blob = bucket.file('uploads/' + filename);
-    const blobStream = blob.createWriteStream({
-      metadata: { contentType: info.mimeType || 'image/jpeg' }
-    });
-
     pending++;
 
-    blobStream.on('error', (err) => {
-      if (hasError) return;
-      hasError = true;
-      res.status(500).json({ error: 'Upload failed' });
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'trio-jerseys',
+        resource_type: 'image'
+      },
+      (err, result) => {
+        if (err) {
+          if (!hasError) {
+            hasError = true;
+            res.status(500).json({ error: 'Upload failed' });
+          }
+          return;
+        }
+
+        uploadedUrls.push(result.secure_url);
+        pending--;
+
+        if (pending === 0 && !hasError) {
+          res.json({ urls: uploadedUrls });
+        }
+      }
+    );
+
+    file.on('error', () => {
+      if (!hasError) {
+        hasError = true;
+        res.status(500).json({ error: 'Upload failed' });
+      }
     });
 
-    blobStream.on('finish', async () => {
-      try {
-        await blob.makePublic();
-        const publicUrl = `https://storage.googleapis.com/${bucket.name}/uploads/${filename}`;
-        uploadedUrls.push(publicUrl);
-      } catch {
-        uploadedUrls.push(`https://storage.googleapis.com/${bucket.name}/uploads/${filename}`);
-      }
-
-      pending--;
-      if (pending === 0 && !hasError) {
-        res.json({ urls: uploadedUrls });
-      }
-    });
-
-    file.pipe(blobStream);
-  });
-
-  busboy.on('filesLimit', () => {
-    if (pending === 0 && !hasError) {
-      res.json({ urls: uploadedUrls });
-    }
+    file.pipe(uploadStream);
   });
 
   busboy.on('error', () => {

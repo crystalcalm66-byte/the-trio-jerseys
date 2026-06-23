@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "busboy": "^1.6.0",
+    "cloudinary": "^1.41.0",
     "firebase-admin": "^12.1.0",
     "jsonwebtoken": "^9.0.2"
   }
