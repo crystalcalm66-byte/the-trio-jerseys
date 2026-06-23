@@ -8,8 +8,12 @@ module.exports = async (req, res) => {
   const body = await parseJSON(req);
   const { password } = body;
 
-  if (!password || password !== ADMIN_PASSWORD) {
-    return res.status(401).json({ error: 'Invalid password' });
+  if (!password) {
+    return res.status(401).json({ error: 'No password', bodyType: typeof req.body, bodyIsObj: req.body && typeof req.body === 'object', bodyVal: JSON.stringify(body).slice(0, 100) });
+  }
+
+  if (password !== ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'Wrong password' });
   }
 
   const token = signToken();
