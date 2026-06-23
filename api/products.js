@@ -7,7 +7,6 @@ module.exports = async (req, res) => {
 
   try {
     const snapshot = await db.collection('products')
-      .orderBy('bestSeller', 'desc')
       .orderBy('name', 'asc')
       .get();
 
@@ -16,9 +15,11 @@ module.exports = async (req, res) => {
       products.push({ id: doc.id, ...doc.data() });
     });
 
+    products.sort((a, b) => (b.bestSeller === true ? 1 : 0) - (a.bestSeller === true ? 1 : 0));
+
     res.json(products);
   } catch (err) {
     console.error('Failed to fetch products:', err);
-    res.status(500).json({ error: 'Failed to fetch products', detail: err.message });
+    res.status(500).json({ error: 'Failed to fetch products' });
   }
 };
