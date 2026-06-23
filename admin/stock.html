@@ -120,12 +120,12 @@
 
   <div class="modal-overlay" id="restock-modal">
     <div class="modal-card">
-      <h2 id="restock-title">Add Stock</h2>
+      <h2 id="restock-title">Adjust Stock</h2>
       <p id="restock-product-name"></p>
       <form id="restock-form">
         <div id="restock-inputs"></div>
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary" id="restock-save-btn">ADD STOCK</button>
+          <button type="submit" class="btn btn-primary" id="restock-save-btn">SAVE</button>
           <button type="button" class="btn btn-outline" id="restock-cancel-btn">CANCEL</button>
         </div>
       </form>
@@ -203,7 +203,7 @@
         }
 
         var btnClass = hasLowStock ? 'btn-restock low' : 'btn-restock';
-        tr.innerHTML = '<td>' + nameCell + '</td>' + sizeCells + '<td style="text-align:center;"><button class="' + btnClass + '" data-idx="' + i + '">RESTOCK</button></td>';
+        tr.innerHTML = '<td>' + nameCell + '</td>' + sizeCells + '<td style="text-align:center;"><button class="' + btnClass + '" data-idx="' + i + '">ADJUST</button></td>';
         tbody.appendChild(tr);
       }
 
@@ -225,7 +225,7 @@
 
     function openRestockModal(product) {
       currentProduct = product;
-      document.getElementById('restock-title').textContent = 'Add Stock';
+      document.getElementById('restock-title').textContent = 'Adjust Stock';
       document.getElementById('restock-product-name').textContent = product.name;
 
       var stock = product.stock || {};
@@ -240,8 +240,7 @@
         inputsHtml +=
           '<div class="stock-input-row">' +
             '<span>' + sz + '</span>' +
-            '<input type="number" name="restock-' + sz + '" value="0" min="0"' + (!inSizes ? ' disabled' : '') + '>' +
-            '<span class="current">Current: ' + currentQty + '</span>' +
+            '<input type="number" name="stock-' + sz + '" value="' + currentQty + '" min="0"' + (!inSizes ? ' disabled' : '') + '>' +
           '</div>';
       }
 
@@ -263,14 +262,14 @@
 
       document.querySelectorAll('#restock-inputs input').forEach(function(inp) {
         if (inp.disabled) return;
-        var size = inp.name.replace('restock-', '');
-        var addQty = parseInt(inp.value) || 0;
-        if (addQty > 0) hasChanges = true;
-        newStock[size] = (stock[size] || 0) + addQty;
+        var size = inp.name.replace('stock-', '');
+        var newQty = parseInt(inp.value) || 0;
+        newStock[size] = newQty;
+        if (newQty !== (stock[size] || 0)) hasChanges = true;
       });
 
       if (!hasChanges) {
-        alert('Please enter at least one size to restock.');
+        alert('No changes made.');
         return;
       }
 
@@ -286,13 +285,13 @@
       .then(function(r) { return r.json(); })
       .then(function() {
         modal.classList.remove('open');
-        saveBtn.textContent = 'ADD STOCK';
+        saveBtn.textContent = 'SAVE';
         saveBtn.disabled = false;
         loadStock();
       })
       .catch(function() {
         alert('Failed to update stock.');
-        saveBtn.textContent = 'ADD STOCK';
+        saveBtn.textContent = 'SAVE';
         saveBtn.disabled = false;
       });
     });
