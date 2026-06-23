@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login &mdash; The Trio Jerseys</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .admin-login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: var(--bg-secondary);
+    }
+    .admin-login-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      padding: 48px 32px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .admin-login-card h1 {
+      margin-bottom: 8px;
+    }
+    .admin-login-card p {
+      margin-bottom: 32px;
+      color: var(--text-secondary);
+    }
+    .admin-login-card .form-group {
+      margin-bottom: 16px;
+      text-align: left;
+    }
+    .admin-login-card input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: var(--font-body);
+      font-size: 1rem;
+    }
+    .admin-login-card input:focus {
+      outline: none;
+      border-color: var(--text-primary);
+    }
+    .admin-login-card .btn {
+      width: 100%;
+      margin-top: 8px;
+    }
+    .login-error {
+      color: var(--danger);
+      font-size: 0.875rem;
+      margin-top: 12px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-login-wrap">
+    <div class="admin-login-card">
+      <div class="logo" style="margin-bottom:24px;display:inline-block;">
+        <span class="logo-main">TRIO</span>
+        <span class="logo-sub">JERSEYS</span>
+      </div>
+      <h1>Admin</h1>
+      <p>Enter your password to continue.</p>
+      <form id="admin-login-form">
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required placeholder="Enter admin password" autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary">LOG IN</button>
+      </form>
+      <div class="login-error" id="login-error">Incorrect password. Try again.</div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('admin-login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var password = document.getElementById('password').value;
+      var errorEl = document.getElementById('login-error');
+
+      fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: password })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success) {
+          var params = new URLSearchParams(window.location.search);
+          var redirect = params.get('redirect') || 'dashboard.html';
+          window.location.href = redirect;
+        } else {
+          errorEl.style.display = 'block';
+        }
+      })
+      .catch(function() {
+        errorEl.style.display = 'block';
+        errorEl.textContent = 'Connection error. Is the server running?';
+      });
+    });
+  </script>
+</body>
+</html>

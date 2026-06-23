@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders &mdash; Admin &mdash; The Trio Jerseys</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    body { background: var(--bg-secondary); }
+    .admin-header {
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .admin-header-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 12px var(--gutter);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .admin-header-inner .logo { display: flex; align-items: center; gap: 4px; }
+    .admin-header-inner .logo-main { font-family: var(--font-heading); font-size: 1.25rem; text-transform: uppercase; letter-spacing: -0.02em; }
+    .admin-header-inner .logo-sub { font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-top: 4px; }
+    .admin-nav { display: flex; gap: 8px; align-items: center; }
+    .admin-nav a { padding: 8px 16px; font-size: 0.875rem; font-weight: 600; border-radius: 4px; }
+    .admin-nav a:hover { background: var(--bg-secondary); }
+    .admin-nav a.active { background: var(--btn-bg); color: var(--btn-text); }
+    .admin-main {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 32px var(--gutter);
+    }
+    .admin-main h1 { margin-bottom: 24px; }
+    .admin-filters { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+    .admin-filters button {
+      padding: 8px 20px;
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .admin-filters button.active {
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border-color: var(--btn-bg);
+    }
+    .admin-table-wrap { overflow-x: auto; background: var(--bg-primary); border: 1px solid var(--border); }
+    table.admin-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+    table.admin-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-secondary);
+    }
+    table.admin-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
+    table.admin-table tr:hover { background: var(--bg-secondary); }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      border-radius: 4px;
+    }
+    .status-placed { background: #F0F0F0; color: var(--text-primary); }
+    .status-processing { background: #FFF3CD; color: #856404; }
+    .status-shipped { background: #CCE5FF; color: #004085; }
+    .status-delivered { background: #D4EDDA; color: #155724; }
+    .status-cancelled { background: #F8D7DA; color: #721C24; }
+    select.status-select {
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-family: var(--font-body);
+      cursor: pointer;
+    }
+    .admin-orders-count { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 16px; }
+    .order-detail-toggle { color: var(--text-secondary); cursor: pointer; font-size: 0.75rem; text-decoration: underline; }
+    .order-detail-row { display: none; }
+    .order-detail-row.open { display: table-row; }
+    .order-detail-cell { padding: 16px 24px; background: var(--bg-secondary); }
+    .order-items-list { font-size: 0.8125rem; }
+    .order-items-list li { padding: 4px 0; }
+    .empty-orders { text-align: center; padding: 64px 0; color: var(--text-secondary); }
+    .logout-btn { padding: 8px 16px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--bg-primary); border-radius: 4px; font-family: var(--font-body); }
+    .logout-btn:hover { background: var(--bg-secondary); }
+  </style>
+</head>
+<body>
+  <header class="admin-header">
+    <div class="admin-header-inner">
+      <a href="dashboard.html" class="logo">
+        <span class="logo-main">TRIO</span>
+        <span class="logo-sub">ADMIN</span>
+      </a>
+      <nav class="admin-nav">
+        <a href="dashboard.html" class="active">Orders</a>
+        <a href="products.html">Products</a>
+        <button class="logout-btn" id="logout-btn">Log Out</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <h1>Orders</h1>
+    <div class="admin-filters" id="order-filters">
+      <button data-status="all" class="active">All</button>
+      <button data-status="placed">Placed</button>
+      <button data-status="processing">Processing</button>
+      <button data-status="shipped">Shipped</button>
+      <button data-status="delivered">Delivered</button>
+      <button data-status="cancelled">Cancelled</button>
+    </div>
+    <div class="admin-orders-count" id="orders-count">Loading orders...</div>
+    <div class="admin-table-wrap" id="orders-table-wrap">
+      <div class="empty-orders" id="empty-orders" style="display:none;">
+        <p>No orders found.</p>
+      </div>
+      <table class="admin-table" id="orders-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Phone</th>
+            <th>City</th>
+            <th>Payment</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="orders-body"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    function loadOrders(status) {
+      var url = '/api/admin/orders' + (status && status !== 'all' ? '?status=' + status : '');
+      fetch(url, { credentials: 'same-origin' })
+        .then(function(r) {
+          if (r.status === 401) { window.location.href = 'login.html'; return null; }
+          return r.json();
+        })
+        .then(function(orders) {
+          if (!orders) return;
+          var tbody = document.getElementById('orders-body');
+          var emptyEl = document.getElementById('empty-orders');
+          var countEl = document.getElementById('orders-count');
+
+          tbody.innerHTML = '';
+
+          if (orders.length === 0) {
+            emptyEl.style.display = 'block';
+            document.getElementById('orders-table').style.display = 'none';
+            countEl.textContent = '0 orders found.';
+            return;
+          }
+
+          emptyEl.style.display = 'none';
+          document.getElementById('orders-table').style.display = '';
+
+          var statusClassMap = {
+            'placed': 'status-placed',
+            'processing': 'status-processing',
+            'shipped': 'status-shipped',
+            'delivered': 'status-delivered',
+            'cancelled': 'status-cancelled'
+          };
+
+          countEl.textContent = orders.length + ' order' + (orders.length > 1 ? 's' : '') + ' found.';
+
+          for (var i = 0; i < orders.length; i++) {
+            var o = orders[i];
+            var statusClass = statusClassMap[o.status] || 'status-placed';
+            var dateStr = o.createdAt ? o.createdAt.split(' ')[0] : '';
+
+            var itemsHTML = '';
+            if (o.items && o.items.length) {
+              itemsHTML = '<ol class="order-items-list">';
+              for (var j = 0; j < o.items.length; j++) {
+                var it = o.items[j];
+                itemsHTML += '<li>' + it.product_name + ' (' + it.size + ') x ' + it.quantity + ' &mdash; PKR ' + (it.unit_price * it.quantity).toLocaleString('en-PK') + '</li>';
+              }
+              itemsHTML += '</ol>';
+            }
+
+            var tr = document.createElement('tr');
+            tr.innerHTML =
+              '<td><strong>' + o.id + '</strong>' +
+                '<br><span class="order-detail-toggle" data-order="' + o.id + '">Show details</span></td>' +
+              '<td>' + escapeHtml(o.customerName) + '</td>' +
+              '<td>' + escapeHtml(o.phone) + '</td>' +
+              '<td>' + escapeHtml(o.city) + '</td>' +
+              '<td>' + o.paymentMethod.toUpperCase() +
+                (o.transactionId ? '<br><span style="font-size:0.75rem;color:var(--text-secondary)">TX: ' + escapeHtml(o.transactionId) + '</span>' : '') +
+              '</td>' +
+              '<td>PKR ' + o.total.toLocaleString('en-PK') + '</td>' +
+              '<td>' +
+                '<select class="status-select" data-order-id="' + o.id + '">' +
+                  '<option value="placed"' + (o.status === 'placed' ? ' selected' : '') + '>Placed</option>' +
+                  '<option value="processing"' + (o.status === 'processing' ? ' selected' : '') + '>Processing</option>' +
+                  '<option value="shipped"' + (o.status === 'shipped' ? ' selected' : '') + '>Shipped</option>' +
+                  '<option value="delivered"' + (o.status === 'delivered' ? ' selected' : '') + '>Delivered</option>' +
+                  '<option value="cancelled"' + (o.status === 'cancelled' ? ' selected' : '') + '>Cancelled</option>' +
+                '</select>' +
+              '</td>' +
+              '<td>' + dateStr + '</td>';
+
+            tbody.appendChild(tr);
+
+            var detailRow = document.createElement('tr');
+            detailRow.className = 'order-detail-row';
+            detailRow.id = 'detail-' + o.id;
+            detailRow.innerHTML =
+              '<td colspan="8"><div class="order-detail-cell">' +
+                '<p style="font-weight:600;margin-bottom:8px;">Items:</p>' +
+                itemsHTML +
+                (o.paymentMethod !== 'cod' && o.transactionId ? '<p style="margin-top:8px;"><strong>Transaction ID:</strong> ' + escapeHtml(o.transactionId) + '</p>' : '') +
+              '</div></td>';
+            tbody.appendChild(detailRow);
+          }
+
+          document.querySelectorAll('.order-detail-toggle').forEach(function(el) {
+            el.addEventListener('click', function() {
+              var id = this.dataset.order;
+              var row = document.getElementById('detail-' + id);
+              if (row) {
+                row.classList.toggle('open');
+                this.textContent = row.classList.contains('open') ? 'Hide details' : 'Show details';
+              }
+            });
+          });
+
+          document.querySelectorAll('.status-select').forEach(function(sel) {
+            sel.addEventListener('change', function() {
+              var orderId = this.dataset.orderId;
+              var newStatus = this.value;
+              fetch('/api/admin/orders/' + orderId, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus }),
+                credentials: 'same-origin'
+              })
+              .then(function(r) { return r.json(); })
+              .then(function(data) {
+                if (data.success) {
+                  var currentFilter = document.querySelector('#order-filters .active');
+                  if (currentFilter) loadOrders(currentFilter.dataset.status);
+                }
+              });
+            });
+          });
+        })
+        .catch(function(err) {
+          document.getElementById('orders-count').textContent = 'Failed to load orders. Is the server running?';
+        });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    document.getElementById('order-filters').addEventListener('click', function(e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      document.querySelectorAll('#order-filters button').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      loadOrders(btn.dataset.status);
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', function() {
+      fetch('/api/admin/logout', { method: 'POST', credentials: 'same-origin' })
+        .then(function() { window.location.href = 'login.html'; });
+    });
+
+    loadOrders('all');
+  </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop &mdash; The Trio Jerseys</title>
+  <meta name="description" content="Browse our full collection of premium football jerseys for Pakistani fans.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="shop">
+  <header id="site-header"></header>
+
+  <main>
+    <div class="container" style="padding-top:32px;padding-bottom:64px;">
+      <!-- Catalog View -->
+      <div id="catalog-view">
+        <div class="section-title" style="text-align:left;margin-bottom:24px;">
+          <h2>All Jerseys</h2>
+        </div>
+        <div class="shop-toolbar">
+          <div class="filter-pills">
+            <button class="filter-pill active" data-filter="All">All</button>
+            <button class="filter-pill" data-filter="Clubs">Clubs</button>
+            <button class="filter-pill" data-filter="National Teams">National Teams</button>
+          </div>
+          <input type="text" class="search-input" id="shop-search" placeholder="Search jerseys&hellip;">
+        </div>
+        <div class="product-grid" id="shop-grid"></div>
+      </div>
+
+      <!-- Detail View -->
+      <div id="detail-view" class="detail-view">
+        <a href="shop.html" class="back-link">&larr; Back to Shop</a>
+        <div class="detail-layout">
+          <div class="detail-gallery">
+            <div class="detail-gallery-main">
+              <img id="detail-main-img" src="" alt="">
+            </div>
+            <div class="detail-gallery-thumbs" id="detail-thumbs"></div>
+          </div>
+          <div class="detail-info" id="detail-info"></div>
+        </div>
+        <div class="related-row">
+          <div class="section-title" style="text-align:left;margin-bottom:24px;">
+            <h3>Related Jerseys</h3>
+          </div>
+          <div class="product-grid" id="related-products"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

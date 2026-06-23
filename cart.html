@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart &mdash; The Trio Jerseys</title>
+  <meta name="description" content="Review your football jersey order before checkout.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="cart">
+  <header id="site-header"></header>
+
+  <main>
+    <div class="container" style="padding-top:32px;padding-bottom:64px;">
+      <div class="section-title" style="text-align:left;margin-bottom:32px;">
+        <h2>Shopping Cart</h2>
+      </div>
+
+      <!-- Empty State -->
+      <div id="cart-empty" class="cart-empty fade-in" style="display:none;">
+        <h2>Your cart is empty</h2>
+        <p>Looks like you haven&rsquo;t added any jerseys yet. Browse our collection and find your matchday fit.</p>
+        <a href="shop.html" class="btn btn-primary">BROWSE JERSEYS</a>
+      </div>
+
+      <!-- Cart Content -->
+      <div id="cart-container" class="cart-layout fade-in">
+        <div class="cart-table-wrap">
+          <table class="cart-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="cart-items"></tbody>
+          </table>
+        </div>
+
+        <div class="cart-summary">
+          <h3>Order Summary</h3>
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span id="cart-subtotal">PKR 0</span>
+          </div>
+          <div class="summary-row">
+            <span>Shipping</span>
+            <span id="cart-shipping">PKR 0</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total</span>
+            <span id="cart-total">PKR 0</span>
+          </div>
+          <p style="font-size:0.75rem;color:var(--text-secondary);margin-top:4px;">Free shipping on orders above PKR 5,000</p>
+          <a href="checkout.html" class="btn btn-primary">PROCEED TO CHECKOUT</a>
+          <a href="shop.html" class="btn btn-outline" style="width:100%;margin-top:8px;">CONTINUE SHOPPING</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

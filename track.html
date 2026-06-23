@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Order &mdash; The Trio Jerseys</title>
+  <meta name="description" content="Check your order status.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .track-lookup-wrap {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 64px 0;
+    }
+    .track-lookup-wrap h1 { margin-bottom: 8px; }
+    .track-lookup-wrap p { margin-bottom: 24px; }
+    .track-input-group {
+      display: flex;
+      gap: 8px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .track-input-group input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: var(--font-body);
+      font-size: 1rem;
+    }
+    .track-input-group input:focus {
+      outline: none;
+      border-color: var(--text-primary);
+    }
+    .track-error {
+      color: var(--danger);
+      font-size: 0.875rem;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .track-result-wrap {
+      display: none;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 32px 0;
+    }
+    .track-result-wrap.show { display: block; }
+
+    .track-order-header {
+      margin-bottom: 32px;
+    }
+    .track-order-header h2 { font-size: 1.25rem; margin-bottom: 4px; }
+    .track-order-header p { color: var(--text-secondary); font-size: 0.875rem; }
+
+    .track-timeline {
+      display: flex;
+      gap: 0;
+      margin-bottom: 32px;
+      position: relative;
+    }
+    .track-step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+    }
+    .track-step::after {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: var(--border);
+      z-index: 0;
+    }
+    .track-step:last-child::after { display: none; }
+    .track-step .dot {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      position: relative;
+      z-index: 1;
+    }
+    .track-step.completed .dot {
+      background: var(--success);
+      color: #fff;
+    }
+    .track-step.active .dot {
+      background: var(--btn-bg);
+      color: var(--btn-text);
+    }
+    .track-step .label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+    .track-step.completed .label { color: var(--success); }
+    .track-step.active .label { color: var(--text-primary); }
+
+    .track-details {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .track-details h3 { font-size: 1rem; margin-bottom: 16px; }
+    .track-detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+    }
+    .track-detail-row:last-child { border-bottom: none; }
+    .track-detail-row .label { color: var(--text-secondary); }
+    .track-detail-row .value { font-weight: 600; }
+
+    .track-items { margin-bottom: 24px; }
+    .track-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+    }
+    .track-item img { width: 48px; height: 64px; object-fit: cover; border-radius: 2px; }
+    .track-item .info { flex: 1; }
+    .track-item .info .name { font-weight: 600; }
+    .track-item .info .meta { color: var(--text-secondary); font-size: 0.8125rem; }
+  </style>
+</head>
+<body data-page="track">
+  <header id="site-header"></header>
+
+  <main>
+    <div class="container" style="padding-top:32px;padding-bottom:64px;">
+      <div class="section-title" style="text-align:left;margin-bottom:32px;">
+        <h2>Track Order</h2>
+      </div>
+
+      <div class="track-lookup-wrap" id="track-lookup">
+        <h1>Check Your Order Status</h1>
+        <p>Enter your order ID to see the latest status update.</p>
+        <div class="track-input-group">
+          <input type="text" id="track-order-id" placeholder="e.g. TRIO-A7K2" style="text-transform:uppercase;">
+          <button class="btn btn-primary" id="track-submit-btn">TRACK</button>
+        </div>
+        <div class="track-error" id="track-error">Order not found. Please check your order ID and try again.</div>
+      </div>
+
+      <div class="track-result-wrap" id="track-result">
+        <div class="track-order-header">
+          <h2 id="track-order-id-display">Order TRIO-XXXX</h2>
+          <p id="track-order-date">Placed on ...</p>
+        </div>
+
+        <div class="track-timeline" id="track-timeline">
+          <div class="track-step" data-step="placed">
+            <div class="dot">&#10003;</div>
+            <div class="label">Placed</div>
+          </div>
+          <div class="track-step" data-step="processing">
+            <div class="dot">&#10003;</div>
+            <div class="label">Processing</div>
+          </div>
+          <div class="track-step" data-step="shipped">
+            <div class="dot">&#10003;</div>
+            <div class="label">Shipped</div>
+          </div>
+          <div class="track-step" data-step="delivered">
+            <div class="dot">&#10003;</div>
+            <div class="label">Delivered</div>
+          </div>
+        </div>
+
+        <div class="track-details" id="track-order-details"></div>
+        <div class="track-items" id="track-items"></div>
+        <div class="track-details">
+          <h3>Delivery Details</h3>
+          <div class="track-detail-row"><span class="label">Name</span><span class="value" id="track-customer-name"></span></div>
+          <div class="track-detail-row"><span class="label">Phone</span><span class="value" id="track-phone"></span></div>
+          <div class="track-detail-row"><span class="label">City</span><span class="value" id="track-city"></span></div>
+          <div class="track-detail-row"><span class="label">Address</span><span class="value" id="track-address"></span></div>
+          <div class="track-detail-row"><span class="label">Payment</span><span class="value" id="track-payment"></span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var params = new URLSearchParams(window.location.search);
+      var orderId = params.get('id');
+      if (orderId) {
+        document.getElementById('track-order-id').value = orderId;
+        trackOrder(orderId);
+      }
+    });
+
+    document.getElementById('track-submit-btn').addEventListener('click', function() {
+      var id = document.getElementById('track-order-id').value.trim().toUpperCase();
+      if (id) trackOrder(id);
+    });
+
+    document.getElementById('track-order-id').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') document.getElementById('track-submit-btn').click();
+    });
+
+    function trackOrder(orderId) {
+      var lookupEl = document.getElementById('track-lookup');
+      var resultEl = document.getElementById('track-result');
+      var errorEl = document.getElementById('track-error');
+      var submitBtn = document.getElementById('track-submit-btn');
+
+      errorEl.style.display = 'none';
+      submitBtn.textContent = 'SEARCHING...';
+      submitBtn.disabled = true;
+
+      fetch('/api/orders/' + orderId)
+        .then(function(r) {
+          if (!r.ok) throw new Error('Not found');
+          return r.json();
+        })
+        .then(function(order) {
+          submitBtn.textContent = 'TRACK';
+          submitBtn.disabled = false;
+
+          document.getElementById('track-order-id-display').textContent = 'Order ' + order.id;
+          var date = new Date(order.createdAt + 'Z');
+          document.getElementById('track-order-date').textContent = 'Placed on ' + date.toLocaleDateString('en-PK', { year: 'numeric', month: 'long', day: 'numeric' });
+
+          var statusOrder = ['placed', 'processing', 'shipped', 'delivered'];
+          var currentIdx = statusOrder.indexOf(order.status);
+          if (order.status === 'cancelled') {
+            document.getElementById('track-timeline').style.display = 'none';
+            var cancelledMsg = document.createElement('div');
+            cancelledMsg.style.cssText = 'text-align:center;padding:24px;background:var(--bg-secondary);border:1px solid var(--danger);margin-bottom:24px;color:var(--danger);font-weight:700;';
+            cancelledMsg.textContent = 'This order has been cancelled.';
+            var timeline = document.getElementById('track-timeline');
+            timeline.parentNode.insertBefore(cancelledMsg, timeline);
+          } else {
+            var steps = document.querySelectorAll('.track-step');
+            steps.forEach(function(step, idx) {
+              step.classList.remove('completed', 'active');
+              if (idx < currentIdx) step.classList.add('completed');
+              else if (idx === currentIdx) step.classList.add('active');
+            });
+          }
+
+          document.getElementById('track-customer-name').textContent = order.customerName;
+          document.getElementById('track-phone').textContent = order.phone;
+          document.getElementById('track-city').textContent = order.city;
+          document.getElementById('track-address').textContent = order.address;
+
+          var paymentLabels = { cod: 'Cash On Delivery', jazzcash: 'JazzCash', easypaisa: 'EasyPaisa' };
+          document.getElementById('track-payment').textContent = paymentLabels[order.paymentMethod] || order.paymentMethod;
+
+          var itemsContainer = document.getElementById('track-items');
+          itemsContainer.innerHTML = '<h3 style="font-size:1rem;margin-bottom:8px;">Items</h3>';
+          order.items.forEach(function(item) {
+            var div = document.createElement('div');
+            div.className = 'track-item';
+            div.innerHTML =
+              '<div class="info">' +
+                '<div class="name">' + item.productName + '</div>' +
+                '<div class="meta">Size: ' + item.size + ' &times; ' + item.quantity + ' &mdash; PKR ' + (item.unitPrice * item.quantity).toLocaleString('en-PK') + '</div>' +
+              '</div>';
+            itemsContainer.appendChild(div);
+          });
+
+          var detailsContainer = document.getElementById('track-order-details');
+          detailsContainer.innerHTML = '<h3>Order Summary</h3>' +
+            '<div class="track-detail-row"><span class="label">Subtotal</span><span class="value">PKR ' + order.subtotal.toLocaleString('en-PK') + '</span></div>' +
+            '<div class="track-detail-row"><span class="label">Shipping</span><span class="value">' + (order.shipping === 0 ? 'FREE' : 'PKR ' + order.shipping.toLocaleString('en-PK')) + '</span></div>' +
+            '<div class="track-detail-row"><span class="label">Total</span><span class="value" style="font-weight:700;">PKR ' + order.total.toLocaleString('en-PK') + '</span></div>';
+
+          lookupEl.style.display = 'none';
+          resultEl.classList.add('show');
+        })
+        .catch(function() {
+          submitBtn.textContent = 'TRACK';
+          submitBtn.disabled = false;
+          errorEl.style.display = 'block';
+        });
+    }
+  </script>
+</body>
+</html>

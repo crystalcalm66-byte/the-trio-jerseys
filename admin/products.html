@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products &mdash; Admin &mdash; The Trio Jerseys</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    body { background: var(--bg-secondary); }
+    .admin-header {
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .admin-header-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 12px var(--gutter);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .admin-header-inner .logo { display: flex; align-items: center; gap: 4px; }
+    .admin-header-inner .logo-main { font-family: var(--font-heading); font-size: 1.25rem; text-transform: uppercase; letter-spacing: -0.02em; }
+    .admin-header-inner .logo-sub { font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-top: 4px; }
+    .admin-nav { display: flex; gap: 8px; align-items: center; }
+    .admin-nav a { padding: 8px 16px; font-size: 0.875rem; font-weight: 600; border-radius: 4px; }
+    .admin-nav a:hover { background: var(--bg-secondary); }
+    .admin-nav a.active { background: var(--btn-bg); color: var(--btn-text); }
+    .admin-main {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 32px var(--gutter);
+    }
+    .admin-main h1 { margin-bottom: 24px; }
+    .admin-toolbar { display: flex; gap: 8px; margin-bottom: 24px; align-items: center; }
+    .btn-add { background: var(--success); color: #fff; border: none; padding: 10px 24px; font-family: var(--font-body); font-size: 0.875rem; font-weight: 700; cursor: pointer; border-radius: 4px; }
+    .product-card-admin {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      padding: 16px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .product-card-admin img { width: 80px; height: 107px; object-fit: cover; flex-shrink: 0; }
+    .product-card-admin .info { flex: 1; min-width: 0; }
+    .product-card-admin .info h3 { font-size: 1rem; margin-bottom: 4px; }
+    .product-card-admin .info .meta { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 4px; }
+    .product-card-admin .info .sizes { font-size: 0.8125rem; margin-top: 4px; }
+    .product-card-admin .info .oos { font-size: 0.75rem; color: var(--danger); }
+    .product-card-admin .actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .btn-edit { padding: 6px 16px; font-size: 0.75rem; font-weight: 700; cursor: pointer; border: 1px solid var(--border); background: var(--bg-primary); border-radius: 4px; }
+    .btn-edit:hover { background: var(--bg-secondary); }
+    .btn-delete { padding: 6px 16px; font-size: 0.75rem; font-weight: 700; cursor: pointer; border: 1px solid var(--danger); color: var(--danger); background: var(--bg-primary); border-radius: 4px; }
+    .btn-delete:hover { background: var(--danger); color: #fff; }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); z-index: 200;
+      display: none; align-items: flex-start; justify-content: center;
+      padding: 48px 24px; overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-card {
+      background: var(--bg-primary);
+      padding: 32px;
+      width: 100%;
+      max-width: 600px;
+    }
+    .modal-card h2 { margin-bottom: 24px; }
+    .modal-card .form-group { margin-bottom: 16px; }
+    .modal-card label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 4px; }
+    .modal-card input, .modal-card textarea, .modal-card select {
+      width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px;
+      font-family: var(--font-body); font-size: 0.875rem;
+    }
+    .modal-card input:focus, .modal-card textarea:focus, .modal-card select:focus {
+      outline: none; border-color: var(--text-primary);
+    }
+    .modal-card textarea { min-height: 80px; resize: vertical; }
+    .modal-card .form-row { display: flex; gap: 16px; }
+    .modal-card .form-row .form-group { flex: 1; }
+    .modal-card .form-actions { display: flex; gap: 8px; margin-top: 24px; }
+    .modal-card .checkbox-group { display: flex; gap: 16px; flex-wrap: wrap; }
+    .modal-card .checkbox-group label { font-weight: 400; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .modal-card .checkbox-group input[type="checkbox"] { width: auto; }
+    .modal-close { position: absolute; top: 16px; right: 16px; font-size: 1.5rem; cursor: pointer; background: none; border: none; font-family: var(--font-body); }
+    .empty-products { text-align: center; padding: 64px 0; color: var(--text-secondary); }
+    .logout-btn { padding: 8px 16px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--bg-primary); border-radius: 4px; font-family: var(--font-body); }
+    .logout-btn:hover { background: var(--bg-secondary); }
+  </style>
+</head>
+<body>
+  <header class="admin-header">
+    <div class="admin-header-inner">
+      <a href="dashboard.html" class="logo">
+        <span class="logo-main">TRIO</span>
+        <span class="logo-sub">ADMIN</span>
+      </a>
+      <nav class="admin-nav">
+        <a href="dashboard.html">Orders</a>
+        <a href="products.html" class="active">Products</a>
+        <button class="logout-btn" id="logout-btn">Log Out</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <h1>Products</h1>
+    <div class="admin-toolbar">
+      <button class="btn-add" id="add-product-btn">+ ADD PRODUCT</button>
+    </div>
+    <div id="products-list"></div>
+  </main>
+
+  <div class="modal-overlay" id="product-modal">
+    <div class="modal-card">
+      <h2 id="modal-title">Add Product</h2>
+      <form id="product-form">
+        <input type="hidden" id="edit-id">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="p-name">Product Name *</label>
+            <input type="text" id="p-name" required>
+          </div>
+          <div class="form-group">
+            <label for="p-price">Price (PKR) *</label>
+            <input type="number" id="p-price" required min="0">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="p-category">Category *</label>
+            <select id="p-category">
+              <option value="Clubs">Clubs</option>
+              <option value="National Teams">National Teams</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="p-club">Club</label>
+            <input type="text" id="p-club" placeholder="e.g. Real Madrid">
+          </div>
+          <div class="form-group">
+            <label for="p-country">Country</label>
+            <input type="text" id="p-country" placeholder="e.g. Brazil">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="p-desc">Description</label>
+          <textarea id="p-desc" placeholder="Product description"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Product Images</label>
+          <div id="image-previews" class="image-previews"></div>
+          <div style="margin-top:8px;">
+            <label class="btn btn-outline btn-small" style="display:inline-block;cursor:pointer;padding:8px 16px;font-size:0.8125rem;">
+              CHOOSE IMAGES
+              <input type="file" id="p-images" accept="image/jpeg,image/png,image/gif,image/webp" multiple style="display:none;">
+            </label>
+            <span style="font-size:0.75rem;color:var(--text-secondary);margin-left:8px;">Max 4 images, 5MB each</span>
+          </div>
+        </div>
+        <style>
+          .image-previews { display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
+          .image-preview-wrap { position:relative; width:100px; height:133px; border:1px solid var(--border); overflow:hidden; }
+          .image-preview-wrap img { width:100%; height:100%; object-fit:cover; }
+          .image-preview-wrap .remove-img { position:absolute; top:2px; right:2px; width:22px; height:22px; background:var(--danger); color:#fff; border:none; border-radius:50%; cursor:pointer; font-size:0.75rem; line-height:22px; text-align:center; padding:0; }
+          .image-preview-wrap .remove-img:hover { background:#a00; }
+          .image-preview-wrap .order-label { position:absolute; bottom:2px; left:2px; background:rgba(0,0,0,0.7); color:#fff; font-size:0.625rem; padding:1px 6px; border-radius:2px; }
+        </style>
+        <div class="form-group">
+          <label>Available Sizes</label>
+          <div class="checkbox-group" id="p-sizes">
+            <label><input type="checkbox" value="S" checked> S</label>
+            <label><input type="checkbox" value="M" checked> M</label>
+            <label><input type="checkbox" value="L" checked> L</label>
+            <label><input type="checkbox" value="XL" checked> XL</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Out of Stock Sizes</label>
+          <div class="checkbox-group" id="p-oos">
+            <label><input type="checkbox" value="S"> S</label>
+            <label><input type="checkbox" value="M"> M</label>
+            <label><input type="checkbox" value="L"> L</label>
+            <label><input type="checkbox" value="XL"> XL</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" id="p-best-seller"> Best Seller</label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="modal-save-btn">SAVE</button>
+          <button type="button" class="btn btn-outline" id="modal-cancel-btn">CANCEL</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function loadProducts() {
+      fetch('/api/admin/products', { credentials: 'same-origin' })
+        .then(function(r) {
+          if (r.status === 401) { window.location.href = 'login.html'; return null; }
+          return r.json();
+        })
+        .then(function(products) {
+          if (!products) return;
+          var container = document.getElementById('products-list');
+          container.innerHTML = '';
+
+          if (products.length === 0) {
+            container.innerHTML = '<div class="empty-products"><p>No products yet. Click "Add Product" to create one.</p></div>';
+            return;
+          }
+
+          for (var i = 0; i < products.length; i++) {
+            var p = products[i];
+            var sizesHTML = (p.sizes || []).join(', ');
+            var oosHTML = (p.outOfStockSizes && p.outOfStockSizes.length) ? ' | OOS: ' + p.outOfStockSizes.join(',') : '';
+
+            var div = document.createElement('div');
+            div.className = 'product-card-admin';
+            div.innerHTML =
+              '<img src="' + (p.images ? p.images[0] : '') + '" alt="' + p.name + '" loading="lazy">' +
+              '<div class="info">' +
+                '<h3>' + escapeHtml(p.name) + '</h3>' +
+                '<div class="meta">' + escapeHtml(p.category) + (p.club ? ' &middot; ' + escapeHtml(p.club) : '') + (p.country ? ' &middot; ' + escapeHtml(p.country) : '') + (p.bestSeller ? ' &middot; <strong>BEST SELLER</strong>' : '') + '</div>' +
+                '<div class="meta">PKR ' + p.price.toLocaleString('en-PK') + '</div>' +
+                '<div class="sizes">' + sizesHTML + oosHTML + '</div>' +
+              '</div>' +
+              '<div class="actions">' +
+                '<button class="btn-edit" data-id="' + p.id + '">EDIT</button>' +
+                '<button class="btn-delete" data-id="' + p.id + '">DELETE</button>' +
+              '</div>';
+            container.appendChild(div);
+          }
+
+          document.querySelectorAll('.btn-edit').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+              var id = this.dataset.id;
+              for (var j = 0; j < products.length; j++) {
+                if (products[j].id === id) {
+                  openEditModal(products[j]);
+                  break;
+                }
+              }
+            });
+          });
+
+          document.querySelectorAll('.btn-delete').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+              var id = this.dataset.id;
+              if (!confirm('Delete this product? This cannot be undone.')) return;
+              fetch('/api/admin/products/' + id, { method: 'DELETE', credentials: 'same-origin' })
+                .then(function(r) { return r.json(); })
+                .then(function() { loadProducts(); });
+            });
+          });
+        })
+        .catch(function(err) {
+          var container = document.getElementById('products-list');
+          container.innerHTML = '<div class="empty-products"><p style="color:var(--danger);">Failed to load products. Make sure the server is running and you are logged in.</p></div>';
+        });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    var modal = document.getElementById('product-modal');
+    var form = document.getElementById('product-form');
+    var selectedImageFiles = [];
+
+    function renderImagePreviews() {
+      var container = document.getElementById('image-previews');
+      container.innerHTML = '';
+      if (selectedImageFiles.length === 0) {
+        container.innerHTML = '<span style="font-size:0.8125rem;color:var(--text-secondary);">No images selected.</span>';
+        return;
+      }
+      for (var i = 0; i < selectedImageFiles.length; i++) {
+        var file = selectedImageFiles[i];
+        var url = typeof file === 'string' ? file : URL.createObjectURL(file);
+        var div = document.createElement('div');
+        div.className = 'image-preview-wrap';
+        div.innerHTML =
+          '<img src="' + url + '" alt="Image ' + (i + 1) + '">' +
+          '<button class="remove-img" data-idx="' + i + '">&times;</button>' +
+          '<span class="order-label">#' + (i + 1) + '</span>';
+        container.appendChild(div);
+      }
+
+      container.querySelectorAll('.remove-img').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var idx = parseInt(this.dataset.idx);
+          selectedImageFiles.splice(idx, 1);
+          renderImagePreviews();
+        });
+      });
+    }
+
+    function openAddModal() {
+      document.getElementById('modal-title').textContent = 'Add Product';
+      document.getElementById('edit-id').value = '';
+      form.reset();
+      selectedImageFiles = [];
+      renderImagePreviews();
+      document.querySelectorAll('#p-sizes input').forEach(function(cb) { cb.checked = true; });
+      document.querySelectorAll('#p-oos input').forEach(function(cb) { cb.checked = false; });
+      document.getElementById('p-best-seller').checked = false;
+      document.getElementById('p-category').value = 'Clubs';
+      modal.classList.add('open');
+    }
+
+    function openEditModal(product) {
+      document.getElementById('modal-title').textContent = 'Edit Product';
+      document.getElementById('edit-id').value = product.id;
+      document.getElementById('p-name').value = product.name;
+      document.getElementById('p-price').value = product.price;
+      document.getElementById('p-category').value = product.category;
+      document.getElementById('p-club').value = product.club || '';
+      document.getElementById('p-country').value = product.country || '';
+      document.getElementById('p-desc').value = product.description || '';
+      document.getElementById('p-best-seller').checked = product.bestSeller;
+
+      document.querySelectorAll('#p-sizes input').forEach(function(cb) {
+        cb.checked = (product.sizes || []).indexOf(cb.value) > -1;
+      });
+      document.querySelectorAll('#p-oos input').forEach(function(cb) {
+        cb.checked = (product.outOfStockSizes || []).indexOf(cb.value) > -1;
+      });
+
+      selectedImageFiles = (product.images || []).slice();
+      renderImagePreviews();
+
+      modal.classList.add('open');
+    }
+
+    document.getElementById('add-product-btn').addEventListener('click', openAddModal);
+    document.getElementById('modal-cancel-btn').addEventListener('click', function() { modal.classList.remove('open'); });
+    modal.addEventListener('click', function(e) { if (e.target === modal) modal.classList.remove('open'); });
+
+    document.getElementById('p-images').addEventListener('change', function(e) {
+      var files = Array.from(e.target.files);
+      if (files.length === 0) return;
+      var total = selectedImageFiles.length + files.length;
+      if (total > 4) {
+        alert('Maximum 4 images allowed. You can have ' + (4 - selectedImageFiles.length) + ' more.');
+        return;
+      }
+      for (var i = 0; i < files.length; i++) {
+        if (files[i].size > 5 * 1024 * 1024) {
+          alert('File "' + files[i].name + '" is too large. Max 5MB.');
+          continue;
+        }
+        selectedImageFiles.push(files[i]);
+      }
+      renderImagePreviews();
+      this.value = '';
+    });
+
+    function uploadImages(files, callback) {
+      var fileUrls = [];
+      var pending = 0;
+
+      for (var i = 0; i < files.length; i++) {
+        if (typeof files[i] === 'string') {
+          fileUrls.push(files[i]);
+          continue;
+        }
+        pending++;
+        var fd = new FormData();
+        fd.append('images', files[i]);
+
+        (function(idx) {
+          fetch('/api/upload', {
+            method: 'POST',
+            body: fd,
+            credentials: 'same-origin'
+          })
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (data.urls && data.urls.length > 0) {
+              fileUrls.push(data.urls[0]);
+            }
+            pending--;
+            if (pending === 0) callback(fileUrls);
+          })
+          .catch(function() {
+            pending--;
+            if (pending === 0) callback(fileUrls);
+          });
+        })(i);
+      }
+
+      if (pending === 0) callback(fileUrls);
+    }
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var editId = document.getElementById('edit-id').value;
+      var name = document.getElementById('p-name').value.trim();
+      var price = parseInt(document.getElementById('p-price').value);
+      var category = document.getElementById('p-category').value;
+      var club = document.getElementById('p-club').value.trim() || null;
+      var country = document.getElementById('p-country').value.trim() || null;
+      var desc = document.getElementById('p-desc').value.trim();
+      var bestSeller = document.getElementById('p-best-seller').checked;
+
+      var sizes = [];
+      document.querySelectorAll('#p-sizes input:checked').forEach(function(cb) { sizes.push(cb.value); });
+
+      var oos = [];
+      document.querySelectorAll('#p-oos input:checked').forEach(function(cb) { oos.push(cb.value); });
+
+      if (!name || !price || !sizes.length) {
+        alert('Name, price, and at least one size are required.');
+        return;
+      }
+
+      var saveBtn = document.getElementById('modal-save-btn');
+      saveBtn.textContent = 'SAVING...';
+      saveBtn.disabled = true;
+
+      var newFiles = selectedImageFiles.filter(function(f) { return typeof f !== 'string'; });
+      var existingUrls = selectedImageFiles.filter(function(f) { return typeof f === 'string'; });
+
+      function saveProduct(imageUrls) {
+        var allUrls = imageUrls.concat(existingUrls).slice(0, 4);
+        var body = {
+          name: name, price: price, category: category, club: club, country: country,
+          description: desc, sizes: sizes, outOfStockSizes: oos, bestSeller: bestSeller,
+          images: allUrls
+        };
+
+        var url = editId ? '/api/admin/products/' + editId : '/api/admin/products';
+        var method = editId ? 'PUT' : 'POST';
+
+        fetch(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+          credentials: 'same-origin'
+        })
+        .then(function(r) { return r.json(); })
+        .then(function() {
+          modal.classList.remove('open');
+          saveBtn.textContent = 'SAVE';
+          saveBtn.disabled = false;
+          loadProducts();
+        })
+        .catch(function() {
+          alert('Failed to save product.');
+          saveBtn.textContent = 'SAVE';
+          saveBtn.disabled = false;
+        });
+      }
+
+      if (newFiles.length > 0) {
+        uploadImages(newFiles, function(uploadedUrls) {
+          saveProduct(uploadedUrls);
+        });
+      } else {
+        saveProduct([]);
+      }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', function() {
+      fetch('/api/admin/logout', { method: 'POST', credentials: 'same-origin' })
+        .then(function() { window.location.href = 'login.html'; });
+    });
+
+    loadProducts();
+  </script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout &mdash; The Trio Jerseys</title>
+  <meta name="description" content="Complete your football jersey order.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="checkout">
+  <header id="site-header"></header>
+
+  <main>
+    <div class="container" style="padding-top:32px;padding-bottom:64px;">
+      <div class="section-title" style="text-align:left;margin-bottom:32px;">
+        <h2>Checkout</h2>
+      </div>
+
+      <div class="checkout-layout">
+        <!-- Form -->
+        <div id="checkout-form-wrap">
+          <form id="checkout-form" novalidate>
+            <div class="form-group">
+              <label for="checkout-name">Full Name <span class="required">*</span></label>
+              <input type="text" id="checkout-name" name="name" required placeholder="e.g. Muhammad Ali" autocomplete="name">
+            </div>
+
+            <div class="form-group">
+              <label for="checkout-phone">Phone Number <span class="required">*</span></label>
+              <input type="tel" id="checkout-phone" name="phone" required placeholder="e.g. 03XX-XXXXXXX" pattern="[0-9\-+\s]+" autocomplete="tel">
+            </div>
+
+            <div class="form-group">
+              <label for="checkout-city">City <span class="required">*</span></label>
+              <input type="text" id="checkout-city" name="city" required placeholder="e.g. Lahore" autocomplete="address-level2">
+            </div>
+
+            <div class="form-group">
+              <label for="checkout-address">Delivery Address <span class="required">*</span></label>
+              <textarea id="checkout-address" name="address" required placeholder="House / Street / Area / Landmark" autocomplete="street-address"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="checkout-notes">Order Notes (optional)</label>
+              <textarea id="checkout-notes" name="notes" placeholder="Any special instructions for delivery"></textarea>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="form-group">
+              <label>Payment Method <span class="required">*</span></label>
+              <div class="payment-methods">
+
+                <!-- COD -->
+                <div class="payment-option selected">
+                  <input type="radio" name="payment" value="cod" id="pay-cod" checked>
+                  <label for="pay-cod" class="radio-label">
+                    <span class="radio-dot"></span>
+                    Cash On Delivery
+                  </label>
+                </div>
+
+                <!-- JazzCash -->
+                <div class="payment-option">
+                  <input type="radio" name="payment" value="jazzcash" id="pay-jazzcash">
+                  <label for="pay-jazzcash" class="radio-label">
+                    <span class="radio-dot"></span>
+                    JazzCash
+                  </label>
+                  <div class="payment-instructions">
+                    <ol>
+                      <li>Open your JazzCash app or dial <strong>*786#</strong></li>
+                      <li>Select &ldquo;Send Money&rdquo; or &ldquo;Mobile Account Transfer&rdquo;</li>
+                      <li>Enter the account number: <strong>0323-2555116</strong></li>
+                      <li>Enter the exact order amount shown in the summary</li>
+                      <li>After payment, enter the transaction ID in the field below</li>
+                    </ol>
+                    <div class="form-group" style="margin-top:12px;">
+                      <label for="txn-jazzcash">Transaction ID</label>
+                      <input type="text" id="txn-jazzcash" class="txn-input" placeholder="e.g. JZ123456789">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- EasyPaisa -->
+                <div class="payment-option">
+                  <input type="radio" name="payment" value="easypaisa" id="pay-easypaisa">
+                  <label for="pay-easypaisa" class="radio-label">
+                    <span class="radio-dot"></span>
+                    EasyPaisa
+                  </label>
+                  <div class="payment-instructions">
+                    <ol>
+                      <li>Open your EasyPaisa app or dial <strong>*786#</strong></li>
+                      <li>Select &ldquo;Send Money&rdquo;</li>
+                      <li>Enter the account number: <strong>0323-2555116</strong></li>
+                      <li>Enter the exact order amount shown in the summary</li>
+                      <li>After payment, enter the transaction ID in the field below</li>
+                    </ol>
+                    <div class="form-group" style="margin-top:12px;">
+                      <label for="txn-easypaisa">Transaction ID</label>
+                      <input type="text" id="txn-easypaisa" class="txn-input" placeholder="e.g. EP987654321">
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px;">PLACE ORDER</button>
+          </form>
+        </div>
+
+        <!-- Order Summary Sidebar -->
+        <div id="checkout-summary-sidebar" class="checkout-summary fade-in">
+          <h3>Order Summary</h3>
+          <div class="checkout-items" id="checkout-items"></div>
+          <div class="summary-row"><span>Subtotal</span><span id="checkout-subtotal">PKR 0</span></div>
+          <div class="summary-row"><span>Shipping</span><span id="checkout-shipping">PKR 0</span></div>
+          <div class="summary-row total"><span>Total</span><span id="checkout-total">PKR 0</span></div>
+        </div>
+      </div>
+
+      <!-- Success Screen -->
+      <div id="checkout-success" class="success-screen">
+        <span class="check-icon">&#10003;</span>
+        <h2>Order Placed!</h2>
+        <p style="font-size:1.25rem;font-weight:700;color:var(--text-primary);margin-bottom:8px;" id="success-order-id"></p>
+        <p style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:24px;">We&rsquo;ll start processing your order right away. You can check the status anytime.</p>
+        <a href="track.html" class="btn btn-primary" style="margin-top:8px;" id="track-order-btn">TRACK YOUR ORDER</a>
+        <a href="shop.html" class="btn btn-outline" style="margin-top:12px;">CONTINUE SHOPPING</a>
+      </div>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
