@@ -952,7 +952,7 @@ document.addEventListener('DOMContentLoaded', function() {
     else { initIntersectionObserver(); }
   }
 
-  if (page === 'shop' || page === 'home' || page === 'cart') {
+  if (page === 'shop' || page === 'home' || page === 'cart' || page === 'checkout') {
     fetchProductsFromApi(runPageInit);
   } else {
     runPageInit();
