@@ -19,6 +19,6 @@ module.exports = async (req, res) => {
     res.json(products);
   } catch (err) {
     console.error('Failed to fetch products:', err);
-    res.status(500).json({ error: 'Failed to fetch products' });
+    res.status(500).json({ error: 'Failed to fetch products', detail: err.message });
   }
 };
