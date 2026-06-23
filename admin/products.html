@@ -205,10 +205,39 @@
   </div>
 
   <script>
+    function getToken() { return localStorage.getItem('trio_admin_token'); }
+
+    function checkAuth() {
+      var token = getToken();
+      if (!token) { window.location.href = 'login.html'; return false; }
+      return true;
+    }
+
+    function authFetch(url, options) {
+      options = options || {};
+      options.headers = options.headers || {};
+      options.headers['Authorization'] = 'Bearer ' + getToken();
+      return fetch(url, options);
+    }
+
+    (function() {
+      var token = getToken();
+      if (!token) { window.location.href = 'login.html'; return; }
+      fetch('/api/admin/verify', { headers: { 'Authorization': 'Bearer ' + token } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (!data.valid) {
+            localStorage.removeItem('trio_admin_token');
+            window.location.href = 'login.html';
+          }
+        });
+    })();
+
     function loadProducts() {
-      fetch('/api/admin/products', { credentials: 'same-origin' })
+      if (!checkAuth()) return;
+      authFetch('/api/admin/products')
         .then(function(r) {
-          if (r.status === 401) { window.location.href = 'login.html'; return null; }
+          if (r.status === 401) { localStorage.removeItem('trio_admin_token'); window.location.href = 'login.html'; return null; }
           return r.json();
         })
         .then(function(products) {
@@ -259,7 +288,7 @@
             btn.addEventListener('click', function() {
               var id = this.dataset.id;
               if (!confirm('Delete this product? This cannot be undone.')) return;
-              fetch('/api/admin/products/' + id, { method: 'DELETE', credentials: 'same-origin' })
+              authFetch('/api/admin/products/' + id, { method: 'DELETE' })
                 .then(function(r) { return r.json(); })
                 .then(function() { loadProducts(); });
             });
@@ -382,10 +411,10 @@
         fd.append('images', files[i]);
 
         (function(idx) {
-          fetch('/api/upload', {
+          authFetch('/api/upload', {
             method: 'POST',
-            body: fd,
-            credentials: 'same-origin'
+            headers: {},
+            body: fd
           })
           .then(function(r) { return r.json(); })
           .then(function(data) {
@@ -445,11 +474,10 @@
         var url = editId ? '/api/admin/products/' + editId : '/api/admin/products';
         var method = editId ? 'PUT' : 'POST';
 
-        fetch(url, {
+        authFetch(url, {
           method: method,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-          credentials: 'same-origin'
+          body: JSON.stringify(body)
         })
         .then(function(r) { return r.json(); })
         .then(function() {
@@ -475,8 +503,8 @@
     });
 
     document.getElementById('logout-btn').addEventListener('click', function() {
-      fetch('/api/admin/logout', { method: 'POST', credentials: 'same-origin' })
-        .then(function() { window.location.href = 'login.html'; });
+      localStorage.removeItem('trio_admin_token');
+      window.location.href = 'login.html';
     });
 
     loadProducts();
