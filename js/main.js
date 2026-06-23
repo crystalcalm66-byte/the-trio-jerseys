@@ -328,7 +328,7 @@ function renderProductCard(product) {
       '<div class="card-price">' + formatPrice(product.price) + '</div>' +
       '<div class="size-chips">' + sizesHTML + '</div>' +
       '<div class="card-actions">' +
-        '<a href="checkout.html?buy=' + product.id + '" class="btn btn-outline btn-small">BUY NOW</a>' +
+        '<a href="shop.html?id=' + product.id + '" class="btn btn-outline btn-small">BUY NOW</a>' +
         '<button class="btn btn-primary btn-small add-to-cart-btn" data-id="' + product.id + '">ADD TO CART</button>' +
       '</div>' +
     '</div>';
@@ -404,6 +404,7 @@ function renderProductDetail(product) {
     sizeOptions.querySelectorAll('.size-option').forEach(function(opt) { opt.classList.remove('selected'); });
     btn.classList.add('selected');
     selectedSize = btn.dataset.size;
+    document.getElementById('buy-now-detail').href = 'checkout.html?buy=' + product.id + '&size=' + selectedSize;
   });
 
   document.getElementById('qty-minus').addEventListener('click', function() {
@@ -678,6 +679,7 @@ function initCartPage() {
 function initCheckoutPage() {
   var cart = getCart();
   var buyId = new URLSearchParams(window.location.search).get('buy');
+  var buySizeParam = new URLSearchParams(window.location.search).get('size');
   var itemsContainer = document.getElementById('checkout-items');
   var subtotalEl = document.getElementById('checkout-subtotal');
   var shippingEl = document.getElementById('checkout-shipping');
@@ -686,12 +688,16 @@ function initCheckoutPage() {
   if (buyId) {
     var product = findProduct(buyId);
     if (product) {
-      var buySize = product.sizes[0];
-      for (var si = 0; si < product.sizes.length; si++) {
-        if (!isSizeOutOfStock(product, product.sizes[si])) {
-          buySize = product.sizes[si];
-          break;
+      var buySize = buySizeParam;
+      if (!buySize || product.sizes.indexOf(buySize) === -1 || isSizeOutOfStock(product, buySize)) {
+        buySize = null;
+        for (var si = 0; si < product.sizes.length; si++) {
+          if (!isSizeOutOfStock(product, product.sizes[si])) {
+            buySize = product.sizes[si];
+            break;
+          }
         }
+        if (!buySize) buySize = product.sizes[0];
       }
       addToCart(buyId, buySize, 1);
       cart = getCart();
