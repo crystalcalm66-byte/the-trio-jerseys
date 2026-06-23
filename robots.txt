@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://the-trio-jerseys-u2bt.vercel.app/sitemap.xml
