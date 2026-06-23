@@ -281,7 +281,7 @@ function initFooter() {
 }
 
 function isSizeOutOfStock(product, size) {
-  return product.outOfStockSizes && product.outOfStockSizes.indexOf(size) > -1;
+  return product.stock && product.stock[size] != null && product.stock[size] < 1;
 }
 
 /* ===== RENDER PRODUCT CARD ===== */
@@ -785,7 +785,11 @@ function initCheckoutPage() {
         })
       })
       .then(function(r) {
-        if (!r.ok) throw new Error('Order failed');
+        if (!r.ok) {
+          return r.json().then(function(errData) {
+            throw new Error(errData.error || 'Order failed');
+          });
+        }
         return r.json();
       })
       .then(function(data) {
@@ -800,7 +804,7 @@ function initCheckoutPage() {
         document.getElementById('checkout-success').classList.add('show');
       })
       .catch(function(err) {
-        alert('Failed to place order. Please try again or contact support.');
+        alert(err.message || 'Failed to place order. Please try again or contact support.');
         submitBtn.textContent = 'PLACE ORDER';
         submitBtn.disabled = false;
       });

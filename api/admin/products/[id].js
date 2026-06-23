@@ -8,7 +8,7 @@ module.exports = async (req, res) => {
 
   if (req.method === 'PUT') {
     const body = (typeof req.body === 'object' ? req.body : {});
-    const { name, club, country, category, price, description, sizes, outOfStockSizes, bestSeller, images } = body;
+    const { name, club, country, category, price, description, sizes, outOfStockSizes, bestSeller, images, stock } = body;
 
     try {
       const doc = await db.collection('products').doc(productId).get();
@@ -26,6 +26,7 @@ module.exports = async (req, res) => {
         description: description ?? existing.description,
         images: images || existing.images,
         sizes: sizes || existing.sizes,
+        stock: stock !== undefined ? stock : existing.stock,
         outOfStockSizes: outOfStockSizes || existing.outOfStockSizes || [],
         bestSeller: bestSeller !== undefined ? bestSeller : existing.bestSeller,
         updatedAt: new Date().toISOString()

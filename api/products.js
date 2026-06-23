@@ -12,7 +12,11 @@ module.exports = async (req, res) => {
 
     const products = [];
     snapshot.forEach(doc => {
-      products.push({ id: doc.id, ...doc.data() });
+      const data = doc.data();
+      if (!data.stock) {
+        data.stock = { S: 10, M: 10, L: 10, XL: 10 };
+      }
+      products.push({ id: doc.id, ...data });
     });
 
     products.sort((a, b) => (b.bestSeller === true ? 1 : 0) - (a.bestSeller === true ? 1 : 0));

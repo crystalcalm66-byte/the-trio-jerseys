@@ -24,56 +24,72 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'Invalid payment method' });
   }
 
-  let subtotal = 0;
-  const orderItems = [];
-
-  for (const item of items) {
-    try {
-      const productDoc = await db.collection('products').doc(item.product_id).get();
-      if (!productDoc.exists) {
-        return res.status(400).json({ error: `Product ${item.product_id} not found` });
-      }
-      const product = productDoc.data();
-      const lineTotal = product.price * item.quantity;
-      subtotal += lineTotal;
-      orderItems.push({
-        productId: item.product_id,
-        productName: product.name,
-        size: item.size,
-        quantity: item.quantity,
-        unitPrice: product.price
-      });
-    } catch (err) {
-      return res.status(500).json({ error: `Error looking up product ${item.product_id}` });
-    }
-  }
-
-  const shipping = subtotal >= 5000 ? 0 : 300;
-  const total = subtotal + shipping;
   const orderId = 'TRIO-' + crypto.randomBytes(3).toString('hex').toUpperCase();
   const now = new Date().toISOString();
 
   try {
-    await db.collection('orders').doc(orderId).set({
-      customerName: name,
-      phone,
-      city,
-      address,
-      notes: notes || '',
-      paymentMethod: payment_method,
-      transactionId: transaction_id || '',
-      subtotal,
-      shipping,
-      total,
-      status: 'placed',
-      createdAt: now,
-      updatedAt: now,
-      items: orderItems
-    });
+    await db.runTransaction(async (transaction) => {
+      let subtotal = 0;
+      const orderItems = [];
 
-    res.json({ orderId, subtotal, shipping, total });
+      for (const item of items) {
+        const productRef = db.collection('products').doc(item.product_id);
+        const productDoc = await transaction.get(productRef);
+
+        if (!productDoc.exists) {
+          throw new Error(`Product ${item.product_id} not found`);
+        }
+
+        const product = productDoc.data();
+        const currentStock = (product.stock && product.stock[item.size] != null) ? product.stock[item.size] : 0;
+
+        if (currentStock < item.quantity) {
+          throw new Error(`Not enough stock for ${product.name} size ${item.size}. Available: ${currentStock}, requested: ${item.quantity}`);
+        }
+
+        const lineTotal = product.price * item.quantity;
+        subtotal += lineTotal;
+
+        orderItems.push({
+          productId: item.product_id,
+          productName: product.name,
+          size: item.size,
+          quantity: item.quantity,
+          unitPrice: product.price
+        });
+
+        const updatedStock = { ...product.stock };
+        updatedStock[item.size] = currentStock - item.quantity;
+        transaction.update(productRef, { stock: updatedStock, updatedAt: now });
+      }
+
+      const shipping = subtotal >= 5000 ? 0 : 300;
+      const total = subtotal + shipping;
+
+      transaction.set(db.collection('orders').doc(orderId), {
+        customerName: name,
+        phone,
+        city,
+        address,
+        notes: notes || '',
+        paymentMethod: payment_method,
+        transactionId: transaction_id || '',
+        subtotal,
+        shipping,
+        total,
+        status: 'placed',
+        createdAt: now,
+        updatedAt: now,
+        items: orderItems
+      });
+
+      res.json({ orderId, subtotal, shipping, total });
+    });
   } catch (err) {
     console.error('Order creation failed:', err);
+    if (err.message.startsWith('Product') || err.message.startsWith('Not enough')) {
+      return res.status(400).json({ error: err.message });
+    }
     res.status(500).json({ error: 'Failed to create order' });
   }
 };

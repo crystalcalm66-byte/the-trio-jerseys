@@ -8,7 +8,7 @@ var PRODUCTS = [
     price: 3999,
     bestSeller: true,
     sizes: ['S', 'M', 'L', 'XL'],
-    outOfStockSizes: ['S', 'XL'],
+    stock: { S: 0, M: 5, L: 8, XL: 0 },
     description: 'The iconic white stripes meet modern performance fabric. This player-version jersey features HEAT.RDY technology to keep you cool during the most intense matches. Worn by legends at the Santiago Bernab\u00e9u, it represents the pinnacle of football excellence.',
     images: [
       'https://picsum.photos/seed/football-rm-1/600/800',
@@ -26,6 +26,7 @@ var PRODUCTS = [
     price: 3799,
     bestSeller: true,
     sizes: ['S', 'M', 'L', 'XL'],
+    stock: { S: 3, M: 7, L: 2, XL: 10 },
     description: 'Channel the treble-winners\' spirit in this sky-blue masterpiece. Precision-engineered with moisture-wicking fabric and a tailored fit, this jersey mirrors what the champions wear on the pitch.',
     images: [
       'https://picsum.photos/seed/football-mc-1/600/800',
@@ -43,6 +44,7 @@ var PRODUCTS = [
     price: 3499,
     bestSeller: false,
     sizes: ['S', 'M', 'L'],
+    stock: { S: 12, M: 6, L: 0 },
     description: 'You\'ll never walk alone in this classic red jersey. Built with lightweight stretch fabric for unrestricted movement, it celebrates the relentless spirit of Anfield.',
     images: [
       'https://picsum.photos/seed/football-liv-1/600/800',
@@ -60,6 +62,7 @@ var PRODUCTS = [
     price: 3699,
     bestSeller: true,
     sizes: ['S', 'M', 'L', 'XL'],
+    stock: { S: 4, M: 9, L: 11, XL: 3 },
     description: 'Mia san Mia \u2014 the red and white of Germany\'s most decorated club. This jersey combines breathable mesh panels with a streamlined fit, engineered for the Allianz Arena.',
     images: [
       'https://picsum.photos/seed/football-bay-1/600/800',
@@ -77,6 +80,7 @@ var PRODUCTS = [
     price: 4299,
     bestSeller: false,
     sizes: ['S', 'M', 'L', 'XL'],
+    stock: { S: 6, M: 2, L: 7, XL: 4 },
     description: 'Parisian elegance meets elite performance. The dark navy jersey with subtle tonal detailing offers a premium look that transitions seamlessly from the Parc des Princes to the streets.',
     images: [
       'https://picsum.photos/seed/football-psg-1/600/800',
@@ -94,6 +98,7 @@ var PRODUCTS = [
     price: 3899,
     bestSeller: true,
     sizes: ['S', 'M', 'L', 'XL'],
+    stock: { S: 1, M: 4, L: 6, XL: 9 },
     description: 'M\u00e9s que un club \u2014 more than a club. The famous blaugrana stripes return on a lightweight, breathable frame. Worn by the next generation of Camp Nou heroes.',
     images: [
       'https://picsum.photos/seed/football-bar-1/600/800',
@@ -111,6 +116,7 @@ var PRODUCTS = [
     price: 4499,
     bestSeller: true,
     sizes: ['S', 'M', 'L', 'XL'],
+    stock: { S: 8, M: 3, L: 5, XL: 0 },
     description: 'The iconic amarelinha that has defined beautiful football for generations. Worn by Pele, Ronaldo, Neymar \u2014 now it\'s your turn. Vibrant yellow with green trim, built for the samba style.',
     images: [
       'https://picsum.photos/seed/football-bra-1/600/800',
@@ -128,6 +134,7 @@ var PRODUCTS = [
     price: 4999,
     bestSeller: true,
     sizes: ['S', 'M', 'L', 'XL'],
+    stock: { S: 0, M: 0, L: 2, XL: 4 },
     description: 'The World Cup champions\' jersey. Sky blue and white stripes with three gold stars above the crest. Inspired by Messi\'s legendary journey, this is the jersey of champions.',
     images: [
       'https://picsum.photos/seed/football-arg-1/600/800',
@@ -145,6 +152,7 @@ var PRODUCTS = [
     price: 4299,
     bestSeller: false,
     sizes: ['S', 'M', 'L'],
+    stock: { S: 10, M: 10, L: 10 },
     description: 'Bleu, blanc, rouge \u2014 the tricolour comes alive on this premium jersey. Featuring subtle gold detailing and a modern collar, it represents the elegance and power of French football.',
     images: [
       'https://picsum.photos/seed/football-fra-1/600/800',
@@ -162,6 +170,7 @@ var PRODUCTS = [
     price: 2499,
     bestSeller: true,
     sizes: ['S', 'M', 'L', 'XL'],
+    stock: { S: 15, M: 20, L: 18, XL: 12 },
     description: 'Represent the green nation. This jersey features the iconic star and crescent on a rich green base with crisp white accents. Lightweight and breathable, made for the passionate Pakistani fan.',
     images: [
       'https://picsum.photos/seed/football-pak-1/600/800',
@@ -179,6 +188,7 @@ var PRODUCTS = [
     price: 3999,
     bestSeller: false,
     sizes: ['S', 'M', 'L', 'XL'],
+    stock: { S: 5, M: 8, L: 4, XL: 6 },
     description: 'Die Mannschaft \u2014 the team. Clean white with bold black and gold accents, this jersey embodies German efficiency and footballing pedigree. Four stars above the crest tell the story.',
     images: [
       'https://picsum.photos/seed/football-ger-1/600/800',
@@ -196,6 +206,7 @@ var PRODUCTS = [
     price: 4499,
     bestSeller: false,
     sizes: ['S', 'M', 'L', 'XL'],
+    stock: { S: 7, M: 4, L: 9, XL: 2 },
     description: 'Vibrant red with green detailing, representing the passion of Portuguese football. From Eus\u00e9bio to Ronaldo, this jersey carries the weight of a proud footballing nation.',
     images: [
       'https://picsum.photos/seed/football-por-1/600/800',

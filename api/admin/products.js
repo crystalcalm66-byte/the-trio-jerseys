@@ -12,7 +12,11 @@ module.exports = async (req, res) => {
 
       const products = [];
       snapshot.forEach(doc => {
-        products.push({ id: doc.id, ...doc.data() });
+        const data = doc.data();
+        if (!data.stock) {
+          data.stock = { S: 10, M: 10, L: 10, XL: 10 };
+        }
+        products.push({ id: doc.id, ...data });
       });
 
       return res.json(products);
@@ -49,6 +53,7 @@ module.exports = async (req, res) => {
         `https://picsum.photos/seed/${id}-4/600/800`
       ],
       sizes: sizes || ['S', 'M', 'L', 'XL'],
+      stock: { S: 10, M: 10, L: 10, XL: 10 },
       outOfStockSizes: [],
       bestSeller: false,
       createdAt: now,
